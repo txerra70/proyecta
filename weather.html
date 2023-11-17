@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <input type="text" id="cityInput" placeholder="Enter a city">
+    <button id="startVoiceInput">Usar Voz</button>
+    <div class="card"> 
+        
+        
+        <div id="current_weather">
+            <div id="current_data"></div>
+        </div>
+        <div id="weather_container">
+            <div id="weather_data"></div>
+        </div>
+    </div>
+    <script></script>
+    <script>
+      const APIkey = "7a5c3628b77577a312a43e120ef45f21";
+
+        function cambiarFondoSegunClima(clima) {
+            // ... Código para cambiar el fondo ...
+            const card = document.querySelector('.card'); // Asegúrate de que '.card' es la clase correcta para tu tarjeta
+          const weatherCode = clima.weather[0].id; // Código de la condición meteorológica actual
+
+          if (weatherCode === 800) { // Cielo despejado
+              card.style.backgroundImage = "url('imagenes/fondo_soleado.jpg')";
+          } else if (weatherCode >= 801 && weatherCode <= 804) { // Nublado
+              card.style.backgroundImage = "url('./imagenes/fondo_nublado.jpg')";
+          } else if (weatherCode >= 500 && weatherCode <= 504) { // Lluvioso
+              card.style.backgroundImage = "url('./imagenes/fondo_lluvioso.jpg')";
+          } else if (weatherCode >= 511 && weatherCode <= 622) { // nieve
+              card.style.backgroundImage = "url('./imagenes/fondo_nieve.jpg')";
+          } else if (weatherCode >= 200 && weatherCode <= 232) { // tormentas
+              card.style.backgroundImage = "url('./imagenes/fondo_tormentas.jpg')";
+            } else if (weatherCode >= 701 && weatherCode <= 781) { // niebla
+              card.style.backgroundImage = "url('./imagenes/fondo_niebla.jpg')";
+          } // Agrega más condiciones según sea necesario // Agrega más condiciones según sea necesario // Agrega más condiciones según sea necesario// Agrega más condiciones según sea necesario
+          
+          else {
+              card.style.backgroundImage = "url('./imagenes/fondo_por_defecto.jpeg')";
+          }
+      }
+
+        async function fetchData(url) {
+            // ... Función para obtener los datos ...
+            
+            try {
+                const response = await fetch(url);
+                const weather = await response.json();
+                if (response.status === 200) {
+                return weather;
+                } else {
+                throw new Error('No se han podido cargar los datos');
+                }
+            } catch (error) {
+                console.error(error);
+                throw new Error('Error en la solicitud de datos');
+            }
+        }
+
+
+        async function showData() {
+            const cityInput = document.getElementById('cityInput');
+            const selectedCity = cityInput.value;
+            // ... Resto de la función showData ...
+            try {
+        const selectedDays = 5; // Cantidad de días fija
+/*         const selectedCity = "london"; // Ciudad fija
+ */        const cityInput = document.getElementById('cityInput');
+        const selectedCity = cityInput.value;
+
+        const datos = await fetchData(`https://api.openweathermap.org/data/2.5/forecast?q=${selectedCity}&units=metric&cnt=${selectedDays * 8}&appid=${APIkey}`);
+
+        const container = document.getElementById('weather_data');
+        let html = '';
+        
+        if (selectedDays > 0) {
+          // Divide los datos en grupos de días
+          const dataGroups = [];
+          for (let i = 0; i < datos.list.length; i += 8) {
+            dataGroups.push(datos.list.slice(i, i + 8));
+          }
+
+          // Calcula las temperaturas máximas y mínimas para cada día y muestra la información
+          for (let i = 0; i < dataGroups.length; i++) {
+            let minTempOfDay = Infinity;
+            let maxTempOfDay = -Infinity;
+
+            for (let j = 0; j < dataGroups[i].length; j++) {
+              const clima = dataGroups[i][j];
+              const min_temp = clima.main.temp_min;
+              const max_temp = clima.main.temp_max;
+
+              minTempOfDay = Math.min(minTempOfDay, min_temp);
+              maxTempOfDay = Math.max(maxTempOfDay, max_temp);
+            }
+
+            // Muestra las temperaturas máximas y mínimas de cada día
+            const diaSemana = obtenerDiaSemana(new Date(dataGroups[i][0].dt * 1000).getDay());
+            const weatherIcon = getWeatherIcon(dataGroups[i][0].weather[0].id); // Obtiene el icono según el código de condición meteorológica
+            html += `<div id="form0"><i class="${weatherIcon}"><div>${diaSemana}</div> <div>${minTempOfDay}°C</div><div>${maxTempOfDay}°C</div></i><br><br></div>`;
+          }
+        } else {
+          html += `<div id="form2">Por favor, selecciona la cantidad de días a mostrar.</div>`; 
+        }
+
+        container.innerHTML = html;
+
+        // Sección 1: Muestra la temperatura actual, hora actual y día de la semana actual
+        const currentWeatherContainer = document.getElementById('current_data');
+        const currentWeather = await fetchData(`https://api.openweathermap.org/data/2.5/weather?q=${selectedCity}&units=metric&appid=${APIkey}`);
+        const currentTemperature = currentWeather.main.temp;
+        const currentHour = new Date().getHours();
+        const currentMinutes = new Date().getMinutes();
+        const currentDayOfWeek = obtenerDiaSemana(new Date().getDay());
+
+        // Agrega un cero inicial si la hora o los minutos son menores que 10
+        const formattedHour = currentHour < 10 ? `0${currentHour}` : currentHour;
+        const formattedMinutes = currentMinutes < 10 ? `0${currentMinutes}` : currentMinutes;
+
+        // Muestra la hora formateada
+        const currentHtml = `<div id="form3">${formattedHour}:${formattedMinutes}<br> ${currentDayOfWeek}<br>${currentTemperature}°C<br></div>`;
+        // Agregar el nombre de la ciudad
+        const currentCityHtml = `<div id="form4">${selectedCity}</div>`;
+        currentWeatherContainer.innerHTML = currentHtml + currentCityHtml;
+        // Obtiene la información meteorológica actual y actualiza el fondo
+                cambiarFondoSegunClima(currentWeather);
+      } catch (error) {
+        console.error(error);
+        const container = document.getElementById('weather_data');
+        container.innerHTML = `<div id="form2">${error.message}</div>`;
+      }
+    }
+
+        function obtenerDiaSemana(dia) {
+            // ... Función para obtener el día de la semana ...
+            const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            return diasSemana[dia];
+    }
+
+        function getWeatherIcon(weatherCode) {
+            // ... Función para obtener el icono del clima ...
+            switch (weatherCode) {
+        case 800:
+          return 'fas fa-sun'; // Icono para cielo despejado
+        case 801:
+          return 'fas fa-cloud-sun'; // Icono para nubes dispersas
+        case 802:
+          return 'fas fa-cloud'; // Icono para nubes
+        case 803:
+        case 804:
+          return 'fas fa-cloud-meatball'; // Icono para nubes
+        case 500:
+        case 501:
+        case 502:
+        case 503:
+        case 504:
+          return 'fas fa-cloud-showers-heavy'; // Icono para lluvias
+        case 511:
+        case 611:
+        case 612:
+        case 613:
+        case 615:
+        case 616:
+        case 620:
+        case 621:
+        case 622:
+          return 'fas fa-snowflake'; // Icono para nieve
+        case 200:
+        case 201:
+        case 202:
+        case 210:
+        case 211:
+        case 212:
+        case 221:
+        case 230:
+        case 231:
+        case 232:
+          return 'fas fa-bolt'; // Icono para tormentas
+        case 701:
+        case 711:
+        case 721:
+        case 731:
+        case 741:
+        case 751:
+        case 761:
+        case 762:
+        case 771:
+        case 781:
+          return 'fas fa-smog'; // Icono para niebla o condiciones atmosféricas
+        default:
+          return 'fas fa-question'; // Icono de pregunta en caso de código desconocido
+      }
+    }
+
+    
+    // Llama a la función showData cuando se carga la página
+    window.onload = showData;
+
+        // Verificar si el navegador soporta el reconocimiento de voz
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (window.SpeechRecognition) {
+            let recognition = new SpeechRecognition();
+            recognition.lang = 'es-ES';
+            recognition.interimResults = false;
+
+            document.getElementById('startVoiceInput').addEventListener('click', () => {
+                recognition.start();
+            });
+
+            recognition.addEventListener('result', (e) => {
+                const voiceText = Array.from(e.results)
+                    .map(result => result[0])
+                    .map(result => result.transcript)
+                    .join('');
+                const cityInputElement = document.getElementById('cityInput');
+                if (cityInputElement) {
+                    cityInputElement.value = voiceText;
+                    showData();
+                } else {
+                    console.error('Elemento cityInput no encontrado');
+                }
+            });
+
+            recognition.addEventListener('end', recognition.start);
+        } else {
+            console.log("Tu navegador no soporta el reconocimiento de voz");
+        }
+    </script>
+</body>
+</html>

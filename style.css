@@ -1,0 +1,154 @@
+@property --rotate {
+    syntax: "<angle>";
+    initial-value: 132deg;
+    inherits: false;
+  }
+  :root {
+    --rotate: 132deg;
+    --mi-propiedad: valor;  
+  }
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+}
+body {
+    min-height: 100vh;
+    background: #212534;
+    display: flex;
+    /* align-items: center;
+    flex-direction: column; */
+    padding-top: 2rem;
+    box-sizing: border-box;
+    background: rgb(71,98,153);
+    background: radial-gradient(circle, rgb(15, 33, 70) 7%, rgba(117,173,207,1) 100%);
+    
+  }
+.card{
+  
+  background-color: var(--mi-propiedad);
+    width: 400px;
+    height: 480px; 
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex;
+    flex-direction: column;
+    text-align: center;
+    align-content: center;
+    position: relative;
+    border-radius: 10px;
+    padding-inline: 5px;
+    font-size: 1.2em;
+    color: rgba(232, 74, 174, 0);
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-size: 400px 480px;
+    /* font-family: cursive; */
+/*     font-style: italic; */
+    transition: color 1s;
+    background-image: url(./imagenes/fondo_por_defecto.jpeg);
+    box-shadow:
+    0px 2px 10px rgb(0, 0, 0),
+    0px 0px 15px rgba(0, 0, 0, 0.123),
+    0px 3px 50px rgba(0, 0, 0, 0.048),
+    0px 5px 100px rgba(2, 2, 2, 0.137);
+    animation: spin 2.5s linear infinite;
+   /*  animation: borderMovement 5s infinite alternate; */
+}
+
+
+ .card:hover {
+    color: rgb(169, 23, 96);
+    transition: color 1s;
+  }
+  .card:hover:before, .card:hover:after {
+    animation: none;
+    opacity: 0;
+  }
+  
+  
+  .card::before {
+    content: "";
+    width: 104%;
+    height: 102%;
+    border-radius: 8px;
+/*      background-image: linear-gradient(var(--rotate), #5ddcff, #3c67e3 43%, #4e00c2);
+ */      position: absolute;
+      z-index: -1;
+      top: -1%;
+      left: -2%;
+      animation: spin 2.5s linear infinite;
+  }
+  .card::after {
+    position: absolute;
+    content: "";
+    top: calc(var(--card-height) / 6);
+    left: 0;
+    right: 0;
+    z-index: -1;
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+    transform: scale(0.8);
+    filter: blur(calc(var(--card-height) / 6));
+    background-image: linear-gradient(
+      var(--rotate)
+      , #5ddcff, #3c67e3 43%, #4e00c2);
+      opacity: 1;
+    transition: opacity .5s;
+    animation: spin 2.5s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      --rotate: 0deg;
+    }
+    100% {
+      --rotate: 360deg;
+    }
+  }
+  @keyframes borderMovement {
+    0% {
+      border-radius: 10px;
+    }
+    100% {
+      border-radius: 50px;
+    }
+  }
+#current_weather{
+    /* width: 400px; */
+    display: flex;
+    align-items: center;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+}
+
+#current_data{
+    display: contents;
+}
+
+#weather_container{
+    width: 400px;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex-direction: row;
+    border-radius: 30px;
+    
+}    
+#weather_data{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: stretch;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 5px;
+}
+#form0, #form1, #form2, #form3{
+      padding: 5px;
+    
+}
+
